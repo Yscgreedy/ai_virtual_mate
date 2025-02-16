@@ -1,15 +1,19 @@
-librosa==0.10.2.post1
-pygame==2.6.0
-numpy==1.26.2
-flask==3.0.3
-edge-tts==6.1.12
-gradio_client==1.0.2
-pillow==10.4.0
-requests==2.32.3
-openai==1.35.10
-ollama==0.2.1
-pyttsx3==2.90
-keyboard==0.13.5
-pyaudio==0.2.14
-vosk==0.3.45
-flet==0.13.0
+edge-tts
+flask
+jieba
+keyboard
+librosa
+ollama
+openai
+opencv-python
+pillow
+pyautogui
+pyaudio
+pygame
+pyttsx3
+funasr_onnx==0.4.1
+numpy==1.26.4
+
+#下述两个库需分别执行命令安装(命令行执行时去掉#号)
+#pip install flet==0.13.0
+#pip install letta==0.6.7

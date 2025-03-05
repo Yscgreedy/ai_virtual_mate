@@ -3,8 +3,7 @@
 ![GitHub license](https://img.shields.io/github/license/swordswind/ai_virtual_mate_web?style=flat-square) ![GitHub stars](https://img.shields.io/github/stars/swordswind/ai_virtual_mate_web?style=flat-square) ![GitHub forks](https://img.shields.io/github/forks/swordswind/ai_virtual_mate_web?style=flat-square)
 
 **枫云AI虚拟伙伴Web版** 是一个高自由度的网页二次元AI数字人框架，现已升级至2.0版本。支持实时语音识别、文本对话、语音合成、图像识别、长期记忆等功能。用户可以通过Web界面与虚拟伙伴进行互动，虚拟伙伴能够根据用户的输入进行智能回复，并支持多种语言模型和语音合成引擎。
-
-![](https://raw.githubusercontent.com/swordswind/ai_virtual_mate_web/main/data/image/logo.png)
+![](data/image/logo.png)
 
 ## 功能特性
 
@@ -16,8 +15,8 @@
 - **多设备全平台访问**：在Windows电脑上运行后，局域网内的设备(如电脑、手机、平板、车机)可通过浏览器展示虚拟伙伴。
 - **长期记忆功能**：可选Letta长期记忆框架，通过分层内存管理机制，在不同会话和任务间保持状态，解决传统LLM无状态问题。
 - **丰富的自定义设置**：用户可自定义虚拟伙伴的名称、语音、人设、Live2D角色模型等，并个性化配置ASR、TTS、LLM、VLM等模块。
-![](https://raw.githubusercontent.com/swordswind/ai_virtual_mate_web/main/data/docs/mateweb.png)
-![](https://raw.githubusercontent.com/swordswind/ai_virtual_mate_web/main/data/docs/mindmap.png)
+![](data/docs/mateweb.png)
+![](data/docs/mindmap.png)
 
 ## 安装与使用
 
@@ -47,7 +46,7 @@
 
 2. **安装依赖**
 
-   在项目根目录下，运行以下命令安装所需的Python依赖(如果发生依赖冲突，可分别安装依赖)：
+   在项目根目录下，分别运行以下命令安装所需的Python依赖。请忽略红字冲突提示，不影响正常使用：
 
    ```bash
    pip install -r requirements.txt

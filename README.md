@@ -1,8 +1,8 @@
 # 枫云AI虚拟伙伴Web版
 
-![GitHub license](https://img.shields.io/github/license/swordswind/ai_virtual_mate_web?style=flat-square) ![GitHub stars](https://img.shields.io/github/stars/swordswind/ai_virtual_mate_web?style=flat-square) ![GitHub forks](https://img.shields.io/github/forks/swordswind/ai_virtual_mate_web?style=flat-square)
 
-**枫云AI虚拟伙伴Web版** 是一个高自由度的网页二次元AI数字人框架，现已升级至2.0版本。支持实时语音识别、文本对话、语音合成、图像识别、长期记忆等功能。用户可以通过Web界面与虚拟伙伴进行互动，虚拟伙伴能够根据用户的输入进行智能回复，并支持多种语言模型和语音合成引擎。
+
+**枫云AI虚拟伙伴Web版** 是一个高自由度的网页二次元AI数字人框架，本版本系二次创作版本。支持实时语音识别、文本对话、语音合成、图像识别、长期记忆等功能。用户可以通过Web界面与虚拟伙伴进行互动，虚拟伙伴能够根据用户的输入进行智能回复，并支持多种语言模型和语音合成引擎。
 ![](data/image/logo.png)
 
 ## 功能特性
@@ -40,8 +40,8 @@
    首先，确保您已经安装了Git。然后，打开命令行工具并运行以下命令来克隆仓库：
 
    ```bash
-   git clone https://github.com/swordswind/ai_virtual_mate_web.git 
-   cd ai_virtual_mate_web
+   git clone https://github.com/Yscgreedy/ai_virtual_mate.git 
+   cd ai_virtual_mate
    ```
 
 2. **安装依赖**
@@ -53,12 +53,12 @@
    pip install flet==0.13.0
    pip install letta==0.6.7
    ```
-
+    ###注意：letta对python版本有特殊需求（3.10+），如果与你的解释器不兼容可以不下载，但同时软件内letta相关设置将无效。###
 3. **配置环境**
 
-   - 修改 `data/db/config.db` 文件中的配置项，设置虚拟伙伴名称、语音识别灵敏度、语音合成引擎等参数。
+   - 修改 `data/db/config.db` 文件中的配置项，设置虚拟伙伴名称、语音识别灵敏度、语音合成引擎等参数。本操作不必执行，但在初次与模型对话前需要在设置中完成配置。
    - 如果需要使用云端免费API，请在 `data/set/key_set.txt` 中填写相应的API密钥。
-   - 从 [https://modelscope.cn/models/iic/SenseVoiceSmall-onnx](https://modelscope.cn/models/iic/SenseVoiceSmall-onnx) 下载语音识别模型，解压放入 `data/model` 文件夹。
+   - 从 [https://modelscope.cn/models/iic/SenseVoiceSmall-onnx](https://modelscope.cn/models/iic/SenseVoiceSmall-onnx) 下载语音识别模型，解压放入 `data/model` 文件夹。#该网址下载模型似乎不可直接使用，可以下载非开源版本整合包并手动剪切相关文件。
 
 4. **运行应用**
 
@@ -68,22 +68,11 @@
    python main.py
    ```
 
-   应用启动后，可以通过浏览器访问 `http://127.0.0.1:5261` 进入Web界面。
+   应用启动后，可以通过浏览器访问 `http://127.0.0.1:5261` 进入Web界面，若设置中关闭Web部分将无法访问。
 
 #### 方法二：下载安装整合包(简单易上手)
-
-1. **下载整合包**
-
-   从官方网站下载整合包：[下载链接](https://swordswind.github.io/2024/07/09/mateweb/)
-
-2. **解压并运行**
-
-   解压下载的压缩包，双击运行"枫云AI虚拟伙伴Web版.bat"文件即可启动软件。
-
-3. **本地AI引擎（可选）**
-
-   如果您希望实现软件的本地运行，可以下载AI虚拟伙伴插件-本地端侧AI引擎DLC：[下载链接](https://swordswind.github.io/2024/03/13/engine/)
-
+**下载整合包**
+    - 本项目不提供整合包，烦请自行部署。
 ### 使用说明
 
 - **启动软件**：双击运行程序，软件主界面将自动弹出AI虚拟伙伴对话网页。首次使用建议修改默认密码。
@@ -145,11 +134,29 @@ ai_virtual_mate_web/
 
 6. **被杀毒软件清理了怎么办？**
    - 该情况属于误报毒行为，请从隔离区恢复软件并加入白名单（信任区）。
-
+7. **tts运行异常**
+   - 本项目二次开发后的tts模块需要额外配置。
+   - 请在data/momoka下置入音频文件，文件名为文件音频内容，文件根据情感不同需分类在不同子文件夹中，如“LABEL_0”,默认设置下请配置四个LABEL文件夹，即0-3。
+   - 请在LLM的提示词下添加语句：
+```
+在回答主体完毕后用"|"结尾，并在后面加入回答的日文翻译，要比较口语化，长度不能太短，最后在一个&后写出回答的情绪label，label定义为
+EMOTION_MAP = {
+    "LABEL_0": ["happy", "joy", "excited", "positive"],
+    "LABEL_1": ["sad", "crying", "depressed", "negative"],
+    "LABEL_2": ["angry", "furious", "rage"],
+    "LABEL_3": ["neutral", "calm", "boring"],
+}
+如“好啊|好啊（日文）&LABEL_0”
+日文与label不计入字数
+```
 ## 开源协议
 
 本项目采用 **GPL-3.0** 开源协议，详情请参阅 [LICENSE](LICENSE) 文件。
-
+## 施工列表
+- [ ] 语音识别模块：asr结果根据设置提供两套逻辑，直接提交|置入消息框后手动提交
+- [ ] 语音合成模块：根据设置切换合成语言
+- [ ] 使用pyQT界面替代原有GUI
+- [ ] 使用更合理的方式让tts输出日语，目前解法仅为测试。
 ## 贡献指南
 
 欢迎贡献代码！请遵循以下步骤：
@@ -179,5 +186,10 @@ ai_virtual_mate_web/
 
 如有任何问题或建议，请联系开发者团队：
 
+（原始项目开发者）
 - **Email**: swordswind@qq.com
 - **GitHub**: [swordswind](https://github.com/swordswind)
+
+（二次开发）
+- **Email**: 2548674104@qq.com
+- **GitHub**: [Yscgreedy](https://github.com/Yscgreedy)

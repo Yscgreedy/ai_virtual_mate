@@ -43,8 +43,15 @@ def common_chat(msg):  # 通用对话
     output_box.see("end")
     notice(f"消息已发送，{mate_name}正在思考中...")
     bot_response = chat_preprocess(msg)
-    stream_insert(f"{mate_name}:\n    {bot_response}\n")
-    get_tts_play_live2d(bot_response)
+    parts = bot_response.split('｜', 1)  # 仅分割一次
+    if len(parts) == 2:
+        chinese_part = parts[0].strip()
+        english_part = parts[1].strip()
+    else:
+        chinese_part = bot_response.strip()
+        english_part = ""  # 处理没有英文的情况
+    stream_insert(f"{mate_name}:\n    {chinese_part}\n")
+    get_tts_play_live2d(english_part)
 
 
 def sensevoice_th():  # 语音识别(普通模式)

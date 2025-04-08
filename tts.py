@@ -1,4 +1,7 @@
 # 语音合成模块
+import os
+import random
+import urllib.parse
 import asyncio
 import edge_tts
 import librosa
@@ -13,17 +16,9 @@ try:
     engine = pyttsx3.init()
 except:
     pass
-lang_mapping = {"中文": "zh", "英语": "uk", "日语": "jp"}
-select_lang = lang_mapping.get(paddle_lang, "kor")
-edge_speaker_mapping = {"晓艺-年轻女声": "zh-CN-XiaoyiNeural", "晓晓-成稳女声": "zh-CN-XiaoxiaoNeural",
-                        "云健-大型纪录片男声": "zh-CN-YunjianNeural", "云希-短视频热门男声": "zh-CN-YunxiNeural",
-                        "云夏-年轻男声": "zh-CN-YunxiaNeural", "云扬-成稳男声": "zh-CN-YunyangNeural",
-                        "晓北-辽宁话女声": "zh-CN-liaoning-XiaobeiNeural",
-                        "晓妮-陕西话女声": "zh-CN-shaanxi-XiaoniNeural", "晓佳-粤语成稳女声": "zh-HK-HiuGaaiNeural",
-                        "晓满-粤语年轻女声": "zh-HK-HiuMaanNeural", "云龙-粤语男声": "zh-HK-WanLungNeural",
-                        "晓辰-台湾话年轻女声": "zh-TW-HsiaoChenNeural", "晓宇-台湾话成稳女声": "zh-TW-HsiaoYuNeural",
-                        "云哲-台湾话男声": "zh-TW-YunJheNeural", "佳太-日语男声": "ja-JP-KeitaNeural"}
-edge_select_speaker = edge_speaker_mapping.get(edge_speaker, "ja-JP-NanamiNeural")
+
+# 在文件开头新增全局缓存字典
+emotion_cache = {}
 
 # 播放语音
 def play_voice():
@@ -45,6 +40,15 @@ def play_voice():
 def get_tts_play_live2d(text):
     async def ms_edge_tts():
         try:
+            edge_speaker_mapping = {"晓艺-年轻女声": "zh-CN-XiaoyiNeural", "晓晓-成稳女声": "zh-CN-XiaoxiaoNeural",
+                                    "云健-大型纪录片男声": "zh-CN-YunjianNeural", "云希-短视频热门男声": "zh-CN-YunxiNeural",
+                                    "云夏-年轻男声": "zh-CN-YunxiaNeural", "云扬-成稳男声": "zh-CN-YunyangNeural",
+                                    "晓北-辽宁话女声": "zh-CN-liaoning-XiaobeiNeural",
+                                    "晓妮-陕西话女声": "zh-CN-shaanxi-XiaoniNeural", "晓佳-粤语成稳女声": "zh-HK-HiuGaaiNeural",
+                                    "晓满-粤语年轻女声": "zh-HK-HiuMaanNeural", "云龙-粤语男声": "zh-HK-WanLungNeural",
+                                    "晓辰-台湾话年轻女声": "zh-TW-HsiaoChenNeural", "晓宇-台湾话成稳女声": "zh-TW-HsiaoYuNeural",
+                                    "云哲-台湾话男声": "zh-TW-YunJheNeural", "佳太-日语男声": "ja-JP-KeitaNeural"}
+            edge_select_speaker = edge_speaker_mapping.get(edge_speaker, "ja-JP-NanamiNeural")
             # 新增参数校验
             #validate_speaker(edge_select_speaker)
             communicate = edge_tts.Communicate(text, edge_select_speaker, rate=f"{edge_rate}%", pitch=f"{edge_pitch}Hz")
@@ -67,15 +71,20 @@ def get_tts_play_live2d(text):
             asyncio.run(ms_edge_tts())
             play_voice()
         elif tts_menu.get() == "云端百度TTS":
+            lang_mapping = {"中文": "zh", "英语": "uk", "日语": "jp"}
+            select_lang = lang_mapping.get(paddle_lang, "kor")
             url = f'https://fanyi.baidu.com/gettts?lan={select_lang}&spd={paddle_rate}&text={text}'
             fetch_and_save_audio(url, "云端百度TTS请求失败")
         elif tts_menu.get() == "本地GPT-SoVITS":
-            import os
-            import random
-            import urllib.parse
-            text,emotion=text.split("&")
+            text,emotion = text.split("&")
             emotion_folder = os.path.join("data", "momoka", emotion)
-            emotion_files = [f for f in os.listdir(emotion_folder) if f.endswith('.wav')]
+            refer_wav_path=''
+            prompt_text = '一二三'
+            # 使用缓存机制避免重复遍历
+            if emotion not in emotion_cache:
+                emotion_cache[emotion] = [f for f in os.listdir(emotion_folder) if f.endswith('.wav')]
+            emotion_files = emotion_cache[emotion]
+            
             if emotion_files:
                 selected_file = random.choice(emotion_files)
                 refer_wav_path = os.path.abspath(os.path.join(emotion_folder, selected_file))
@@ -104,7 +113,7 @@ def get_tts_play_live2d(text):
     except FileNotFoundError as e:
         notice(f"文件未找到：{str(e)}")
     except Exception as e:
-        notice(f"错误：{str(e)}", level='error')
+        notice(f"错误：{str(e)}")
 
     def play_live2d():  # 读取缓存音频播放Live2D对口型动作
         try:
@@ -119,7 +128,7 @@ def get_tts_play_live2d(text):
             loop_count = math.ceil(total_samples / 800)  # 向上取整循环次数
             for _ in range(loop_count):
                 current_time = time.time() - s_time
-                current_index = min(current_time * 8000, total_samples-1)
+                current_index = int(min(current_time * 8000, total_samples-1))
                 # 新增边界检查
                 if current_index < 0 or current_index >= len(x):
                     continue
@@ -130,7 +139,7 @@ def get_tts_play_live2d(text):
                     cache_file.write(str(float(it)))
                 time.sleep(0.1)
         except IndexError:
-            notice("音频数据索引越界", level='warning')
+            notice("音频数据索引越界")
         finally:
             time.sleep(0.1)
             with open("data/cache/cache.txt", "w") as cache_file:

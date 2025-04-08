@@ -2,7 +2,7 @@
 import keyboard as kb
 from chat_web import *
 from live2d import *
-
+import os
 
 def refresh_preference():  # 获取用户设置
     global voice_switch, prefer_llm, prefer_tts, prefer_img, history
@@ -103,6 +103,11 @@ def switch_voice(event=None):  # 切换语音识别
         voice_var.set("实时语音识别")
 
 
+if not os.path.exists('data/momoka'):
+    os.makedirs('data/momoka', exist_ok=True)
+    for label in ["LABEL_0", "LABEL_1", "LABEL_2", "LABEL_3"]:
+        dir_path = os.path.join('data/momoka', label)
+        os.makedirs(dir_path, exist_ok=True)
 Thread(target=run_live2d).start()
 if chat_web_switch == "开启":
     Thread(target=run_chatweb).start()

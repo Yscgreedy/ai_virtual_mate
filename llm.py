@@ -56,11 +56,11 @@ def chat_preprocess(msg):  # 预处理
         return "图像识别引擎配置错误"
 
 
-def chat_llm(tishici, msg):  # 大语言模型聊天
+def chat_llm(prompt, msg):  # 大语言模型聊天
     try:
         if llm_menu.get() == "讯飞星火Lite":
             spark_client = OpenAI(base_url="https://spark-api-open.xf-yun.com/v1", api_key=spark_key)
-            spark_history.append({"role": "user", "content": f"{tishici}。我的问题是：{msg}"})
+            spark_history.append({"role": "user", "content": f"{prompt}。我的问题是：{msg}"})
             messages = []
             messages.extend(spark_history)
             completion = spark_client.chat.completions.create(model="general", messages=messages)
@@ -69,7 +69,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
         elif llm_menu.get() == "GLM-4-Flash":
             glm_client = OpenAI(base_url=glm_url, api_key=glm_key)
             glm_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": tishici}]
+            messages = [{"role": "system", "content": prompt}]
             messages.extend(glm_history)
             completion = glm_client.chat.completions.create(model="glm-4-flash", messages=messages)
             glm_history.append({"role": "assistant", "content": completion.choices[0].message.content})
@@ -77,7 +77,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
         elif llm_menu.get() == "DeepSeek-R1-7B":
             ds_client = OpenAI(base_url=sf_url, api_key=sf_key)
             ds_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": tishici}]
+            messages = [{"role": "system", "content": prompt}]
             messages.extend(ds_history)
             completion = ds_client.chat.completions.create(model="deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
                                                            messages=messages)
@@ -86,7 +86,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
         elif llm_menu.get() == "思维链Marco-o1":
             marco_client = OpenAI(base_url=sf_url, api_key=sf_key)
             messages = [{"role": "system",
-                         "content": f"{tishici}。当你回答问题时，你的思考应该在<think>内完成，<answer>内输出你的结果。<think>应该尽可能是中文"},
+                         "content": f"{prompt}。当你回答问题时，你的思考应该在<think>内完成，<answer>内输出你的结果。<think>应该尽可能是中文"},
                         {"role": "user", "content": msg}]
             completion = marco_client.chat.completions.create(model="AIDC-AI/Marco-o1", messages=messages)
             result = completion.choices[0].message.content
@@ -95,7 +95,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
         elif llm_menu.get() == "零一万物1.5-9B":
             lyww_client = OpenAI(base_url=sf_url, api_key=sf_key)
             lyww_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": tishici}]
+            messages = [{"role": "system", "content": prompt}]
             messages.extend(lyww_history)
             completion = lyww_client.chat.completions.create(model="01-ai/Yi-1.5-9B-Chat-16K",
                                                              messages=messages)
@@ -104,7 +104,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
         elif llm_menu.get() == "通义千问2.5-7B":
             qwen_client = OpenAI(base_url=sf_url, api_key=sf_key)
             qwen_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": tishici}]
+            messages = [{"role": "system", "content": prompt}]
             messages.extend(qwen_history)
             completion = qwen_client.chat.completions.create(model="Qwen/Qwen2.5-7B-Instruct",
                                                              messages=messages)
@@ -113,14 +113,14 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
         elif llm_menu.get() == "InternLM2.5-7B":
             internlm_client = OpenAI(base_url=sf_url, api_key=sf_key)
             internlm_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": tishici}]
+            messages = [{"role": "system", "content": prompt}]
             messages.extend(internlm_history)
             completion = internlm_client.chat.completions.create(model="internlm/internlm2_5-7b-chat",
                                                                  messages=messages)
             internlm_history.append({"role": "assistant", "content": completion.choices[0].message.content})
             return completion.choices[0].message.content
         elif llm_menu.get() == "本地Qwen整合包":
-            api = f"http://{local_server_ip}:8088/llm/?p={tishici}&q={msg}"
+            api = f"http://{local_server_ip}:8088/llm/?p={prompt}&q={msg}"
             try:
                 res = rq.get(api).json()["answer"]
                 return res
@@ -130,7 +130,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
             try:
                 lmstudio_client = OpenAI(base_url=f"http://{local_server_ip}:{lmstudio_port}/v1", api_key="lm-studio")
                 lmstudio_history.append({"role": "user", "content": msg})
-                messages = [{"role": "system", "content": tishici}]
+                messages = [{"role": "system", "content": prompt}]
                 messages.extend(lmstudio_history)
                 completion = lmstudio_client.chat.completions.create(model="", messages=messages)
                 lmstudio_history.append({"role": "assistant", "content": completion.choices[0].message.content})
@@ -145,7 +145,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
                     Popen(f"ollama pull {ollama_model_name}", shell=False)
                 ollama_client = Client(host=f'http://{local_server_ip}:11434')
                 ollama_history.append({"role": "user", "content": msg})
-                messages = [{"role": "system", "content": tishici}]
+                messages = [{"role": "system", "content": prompt}]
                 messages.extend(ollama_history)
                 response = ollama_client.chat(model=ollama_model_name, messages=messages)
                 ollama_history.append({"role": "assistant", "content": response['message']['content']})
@@ -156,7 +156,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
             try:
                 rwkv_client = OpenAI(base_url=f"http://{local_server_ip}:8000/v1", api_key="rwkv")
                 rwkv_history.append({"role": "user", "content": msg})
-                messages = [{"role": "system", "content": tishici}]
+                messages = [{"role": "system", "content": prompt}]
                 messages.extend(rwkv_history)
                 completion = rwkv_client.chat.completions.create(model="rwkv", messages=messages)
                 rwkv_history.append({"role": "assistant", "content": completion.choices[0].message.content})
@@ -164,7 +164,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
             except Exception as e:
                 return f"本地RWKV Runner软件未开启，错误详情：{e}"
         elif llm_menu.get() == "本地OpenVINO":
-            api = f"http://{local_server_ip}:8087/openvino/?p={tishici}&q={msg}"
+            api = f"http://{local_server_ip}:8087/openvino/?p={prompt}&q={msg}"
             try:
                 res = rq.get(api).json()["answer"]
                 return res
@@ -189,7 +189,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
             try:
                 custom_client = OpenAI(base_url=custom_url, api_key=custom_key)
                 custom_history.append({"role": "user", "content": msg})
-                messages = [{"role": "system", "content": tishici}]
+                messages = [{"role": "system", "content": prompt}]
                 messages.extend(custom_history)
                 completion = custom_client.chat.completions.create(model=custom_model, messages=messages)
                 custom_history.append({"role": "assistant", "content": completion.choices[0].message.content})

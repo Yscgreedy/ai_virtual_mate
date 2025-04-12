@@ -43,7 +43,7 @@ def common_chat(msg):  # 通用对话
     output_box.see("end")
     notice(f"消息已发送，{mate_name}正在思考中...")
     bot_response = chat_preprocess(msg)
-    parts = bot_response.split('｜', 1)  # 仅分割一次
+    parts = bot_response.split('|', 1)  # 仅分割一次
     if len(parts) == 2:
         chinese_part = parts[0].strip()
         english_part = parts[1].strip()

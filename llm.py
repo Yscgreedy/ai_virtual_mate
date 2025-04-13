@@ -6,7 +6,7 @@ try:
     from letta import create_client, LLMConfig, EmbeddingConfig
     from letta.schemas.memory import ChatMemory
 except:
-    pass
+    notice("letta组件未成功导入，请勿使用相关功能")
 
 lmstudio_history, ollama_history, rwkv_history, custom_history, spark_history, glm_history, lyww_history, ds_history, qwen_history, internlm_history = [], [], [], [], [], [], [], [], [], []
 sf_url = "https://api.siliconflow.cn/v1"

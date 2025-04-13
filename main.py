@@ -4,6 +4,7 @@ from chat_web import *
 from live2d import *
 import os
 
+os.environ["no_proxy"] = "localhost,127.0.0.1"
 def refresh_preference():  # 获取用户设置
     global voice_switch, prefer_llm, prefer_tts, prefer_img, history
     while True:

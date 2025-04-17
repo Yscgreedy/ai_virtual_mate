@@ -4,3 +4,11 @@ data/cache/
 data/model/
 start.bat
 data/db/
+data/image/
+.lingma/
+data/cache/cache_voice
+.vscode/settings.json
+__pycache__/
+
+dist/assets/live2d_core/live2d_js_set.txt
+data/db/history.db

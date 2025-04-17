@@ -37,7 +37,7 @@ def play_voice():
     Thread(target=play_mp3_th).start()
 
 # 获取并播放语音
-def get_tts_play_live2d(text):
+def get_tts_play_live2d(text,language='ja'):
     async def ms_edge_tts():
         try:
             edge_speaker_mapping = {"晓艺-年轻女声": "zh-CN-XiaoyiNeural", "晓晓-成稳女声": "zh-CN-XiaoxiaoNeural",
@@ -78,7 +78,7 @@ def get_tts_play_live2d(text):
         elif tts_menu.get() == "本地GPT-SoVITS":
             text,emotion = text.split("&")
             emotion_folder = os.path.join("data", "momoka", emotion)
-            refer_wav_path=''
+            refer_wav_path=voice_path
             prompt_text = '一二三'
             # 使用缓存机制避免重复遍历
             if emotion not in emotion_cache:
@@ -93,9 +93,9 @@ def get_tts_play_live2d(text):
                 refer_wav_path = urllib.parse.quote(refer_wav_path)
                 prompt_text = urllib.parse.quote(prompt_text)
             #上面是api.py
-            #下面是api_v2.py
-            #url = f'http://{local_server_ip}:{gsv_port}/?refer_wav_path={refer_wav_path}&prompt_text={prompt_text}&prompt_language=ja&text={text}&text_language=ja'
-            url = f'http://{local_server_ip}:{gsv_port}/tts?ref_audio_path={refer_wav_path}&prompt_text={prompt_text}&prompt_lang=ja&text={text}&text_lang=ja&parallel_infer=False'
+            #下面是api_v2.py，由于使用v3模型，不使用并行推理
+            #url = f'http://{local_server_ip}:{gsv_port}/?refer_wav_path={refer_wav_path}&prompt_text={prompt_text}&prompt_language=ja&text={text}&text_language={language}'
+            url = f'http://{local_server_ip}:{gsv_port}/tts?ref_audio_path={refer_wav_path}&prompt_text={prompt_text}&prompt_lang=ja&text={text}&text_lang={language}&parallel_infer=False'
             fetch_and_save_audio(url, "本地GPT-SoVITS API请求失败")
         elif tts_menu.get() == "本地CosyVoice":
             url = f'http://{local_server_ip}:{cosy_port}/cosyvoice/?text={text}'

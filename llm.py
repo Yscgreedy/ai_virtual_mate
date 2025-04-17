@@ -15,8 +15,7 @@ sf_url = "https://api.siliconflow.cn/v1"
 def chat_preprocess(msg):  # 预处理
     try:
         content = "图像识别已关闭"
-        if (
-                "屏幕" in msg or "画面" in msg or "图片" in msg or "看到" in msg or "看见" in msg or "照片" in msg or "摄像头" in msg) and img_menu.get() != "关闭图像识别":
+        if any(kw in msg for kw in ("屏幕", "画面", "图片", "看到", "看见", "照片", "摄像头")) and img_menu.get() != "关闭图像识别":
             if "屏幕" in msg or "画面" in msg or "图片" in msg:
                 if img_menu.get() == "GLM-4V-Flash":
                     content = glm_4v_screen(msg)

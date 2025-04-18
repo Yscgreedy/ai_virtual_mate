@@ -1,8 +1,0 @@
-[SiliconCloud硅基流动平台key(免费获取网址:siliconflow.cn)]
-sk-xxxxxxxxxx
-
-[BigModel智谱开放平台key(免费获取网址:bigmodel.cn)]
-xxxxx.xxxxx
-
-[Spark讯飞开放平台key(免费获取网址:xinghuo.xfyun.cn)]
-xxxxx:xxxxx

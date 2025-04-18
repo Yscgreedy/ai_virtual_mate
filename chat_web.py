@@ -38,14 +38,15 @@ def web_main(page: ft.Page):  # 网页主函数
     page.title = "对话 - 枫云AI虚拟伙伴Web版"
     logo_image = ImageW("data/image/logo.png", width=25, height=25)
     title_label = ft.Text(value="枫云AI虚拟伙伴Web版", size=22, color="#587EF4")
-    ip_label1 = ft.Text(value=f"对话网址: http://{server_ip}:{chatweb_port}", size=16)
-    ip_label2 = ft.Text(value=f"角色网址: http://{server_ip}:{live2d_port}", size=16)
-    open_ch_bt = ft.ElevatedButton(text="打开角色(主机)", on_click=open_ch)
+    ip_label1 = ft.Text(value=f"2D角色网址: http://{server_ip}:{live2d_port}", size=16)
+    ip_label2 = ft.Text(value=f"3D角色网址: http://{server_ip}:{mmd_port}", size=16)
+    open_ch_2d_bt = ft.ElevatedButton(text="打开2D角色(主机)", on_click=open_ch_2d)
+    open_ch_3d_bt = ft.ElevatedButton(text="打开3D角色(主机)", on_click=open_ch_3d)
     row1 = Row([logo_image, title_label])
     page.add(row1)
-    row2 = Row([ip_label1])
+    row2 = Row([ip_label1, open_ch_2d_bt])
     page.add(row2)
-    row3 = Row([ip_label2, open_ch_bt])
+    row3 = Row([ip_label2, open_ch_3d_bt])
     page.add(row3)
 
     def join_chat_click(e):  # 加入对话
@@ -76,6 +77,7 @@ def web_main(page: ft.Page):  # 网页主函数
         new_message.value = ""
         new_message.focus()
         bot_response = chat_llm(prompt, user_message)
+        bot_response = bot_response.replace("#", "").replace("*", "")
         if think_filter_switch == "开启":
             bot_response = bot_response.split("</think>")[-1].strip()
         state.value = f"收到{mate_name}回复"
@@ -114,7 +116,7 @@ def web_main(page: ft.Page):  # 网页主函数
 
     page.pubsub.subscribe(on_message)
     join_user_name = ft.TextField(label="用户名", value=username, autofocus=True, on_submit=join_chat_click)
-    join_password = ft.TextField(label="密码", value=password, autofocus=True, password=True)
+    join_password = ft.TextField(label="密码", value="", autofocus=True, password=True)
     page.dialog = ft.AlertDialog(open=True, modal=True, title=ft.Text("枫云AI虚拟伙伴Web版"),
                                  content=ft.Column([join_user_name, join_password], width=300, height=120, tight=True),
                                  actions=[ft.ElevatedButton(text="登录", on_click=join_chat_click)],

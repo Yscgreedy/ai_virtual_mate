@@ -3,9 +3,9 @@ import json
 import logging
 from flask import Flask, send_from_directory
 
-with open('data/db/config.db', 'r', encoding='utf-8') as file:
-    lines = file.readlines()
-live2d_port = int(lines[22].strip())
+with open('data/db/config.json', 'r', encoding='utf-8') as file:
+    config = json.load(file)
+live2d_port = int(config["2D角色网页端口"])
 app = Flask(__name__, static_folder='dist')
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 

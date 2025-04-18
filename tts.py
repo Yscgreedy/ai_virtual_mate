@@ -3,7 +3,6 @@ import asyncio
 import edge_tts
 import librosa
 import pyttsx3
-import pygame as pg
 import numpy as np
 from function import *
 
@@ -46,6 +45,7 @@ def get_tts_play_live2d(text):  # 获取并播放语音
         communicate = edge_tts.Communicate(text, edge_select_speaker, rate=f"{edge_rate}%", pitch=f"{edge_pitch}Hz")
         await communicate.save(voice_path)
 
+    text = text.split("</think>")[-1].strip()
     try:
         if tts_menu.get() == "云端edge-tts":
             asyncio.run(ms_edge_tts())
@@ -58,7 +58,7 @@ def get_tts_play_live2d(text):  # 获取并播放语音
                 f.write(wav_data)
             play_voice()
         elif tts_menu.get() == "本地GPT-SoVITS":
-            url = f'http://{local_server_ip}:{gsv_port}/?text={text}&text_language=zh'
+            url = f'http://{local_server_ip}:{gsv_port}/?text={text}&text_language={gsv_lang}'
             try:
                 response = rq.get(url)
                 wav_data = response.content
@@ -87,6 +87,26 @@ def get_tts_play_live2d(text):  # 获取并播放语音
                 play_voice()
             except Exception as e:
                 notice(f"本地Kokoro-TTS整合包API服务器未开启，错误详情：{e}")
+        elif tts_menu.get() == "本地Spark-TTS":
+            url = f'http://{local_server_ip}:9883/spark/?text={text}'
+            try:
+                response = rq.get(url)
+                wav_data = response.content
+                with open(voice_path, 'wb') as f:
+                    f.write(wav_data)
+                play_voice()
+            except Exception as e:
+                notice(f"本地Spark-TTS整合包API服务器未开启，错误详情：{e}")
+        elif tts_menu.get() == "本地Index-TTS":
+            url = f'http://{local_server_ip}:9884/indextts/?text={text}'
+            try:
+                response = rq.get(url)
+                wav_data = response.content
+                with open(voice_path, 'wb') as f:
+                    f.write(wav_data)
+                play_voice()
+            except Exception as e:
+                notice(f"本地Index-TTS整合包API服务器未开启，错误详情：{e}")
         elif tts_menu.get() == "本地pyttsx3":
             try:
                 engine.save_to_file(text, voice_path)
@@ -95,7 +115,7 @@ def get_tts_play_live2d(text):  # 获取并播放语音
             except:
                 notice("您的电脑暂不支持pyttsx3，可选择其他语音合成引擎")
     except:
-        notice(f"{tts_menu.get()}不可用，可选择其他语音合成引擎")
+        notice(f"{tts_menu.get()}服务拥挤，可选择其他语音合成引擎")
 
     def play_live2d():  # 读取缓存音频播放Live2D对口型动作
         try:

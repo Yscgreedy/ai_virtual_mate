@@ -1,12 +1,16 @@
 # 语音识别模块
-import pyaudio
+import json
 import wave
+import pyaudio
 import numpy as np
 from funasr_onnx import SenseVoiceSmall
 
-with open('data/db/config.db', 'r', encoding='utf-8') as file:
-    lines = file.readlines()
-asr_sensitivity = lines[67].strip()
+with open('data/db/config.json', 'r', encoding='utf-8') as file:
+    config = json.load(file)
+asr_sensitivity = config["语音识别灵敏度"]
+with open('data/set/more_set.json', 'r', encoding='utf-8') as file15:
+    more_set = json.load(file15)
+mic_num = int(more_set["麦克风编号"])
 if asr_sensitivity == "高":
     SILENCE_DURATION = 2
 elif asr_sensitivity == "中":
@@ -17,9 +21,8 @@ FORMAT = pyaudio.paInt16
 CHANNELS, RATE, CHUNK = 1, 16000, 1024
 SILENCE_CHUNKS = SILENCE_DURATION * RATE / CHUNK
 p = pyaudio.PyAudio()
-stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
+stream, model = None, None
 cache_path = "data/cache/cache_record.wav"
-model = SenseVoiceSmall("data/model/sensevoice-small-onnx-quant", batch_size=10, quantize=True)
 
 
 def rms(data):  # 计算rms值
@@ -31,9 +34,13 @@ def dbfs(rms_value):  # 计算dbfs值
 
 
 def record_audio():  # 录音
+    global stream
     frames = []
     recording = True
     silence_counter = 0
+    if stream is None:
+        stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK,
+                        input_device_index=mic_num)
     while recording:
         data = stream.read(CHUNK)
         frames.append(data)
@@ -49,6 +56,9 @@ def record_audio():  # 录音
 
 
 def recognize_audio(audiodata):  # 识别
+    global model
+    if model is None:
+        model = SenseVoiceSmall("data/model/sensevoice-small-onnx-quant", batch_size=10, quantize=True)
     with wave.open(cache_path, 'wb') as wf:
         wf.setnchannels(CHANNELS)
         wf.setsampwidth(p.get_sample_size(FORMAT))

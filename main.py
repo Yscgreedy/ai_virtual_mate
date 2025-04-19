@@ -1,10 +1,11 @@
 # 主程序
 import keyboard as kb
 from chat_web import *
-from live2d import *
+from live2d import run_live2d
+import os
 from mmd import *
 
-
+os.environ["no_proxy"] = "localhost,127.0.0.1"
 def refresh_preference():  # 获取用户设置
     while True:
         try:
@@ -48,11 +49,20 @@ def common_chat(msg):  # 通用对话
     output_box.see("end")
     notice(f"消息已发送，{mate_name}正在思考中...")
     bot_response = chat_preprocess(msg)
-    bot_response = bot_response.replace("#", "").replace("*", "")
-    if think_filter_switch == "开启":
-        bot_response = bot_response.split("</think>")[-1].strip()
-    stream_insert(f"{mate_name}:\n    {bot_response}\n")
-    get_tts_play_live2d(bot_response)
+    """
+    js=json.load(bot_response)
+    chinse_part,english_part,Label=js["answer"],js["foreign"],js["LABEL"]
+    """
+    parts = bot_response.split('|', 1)  # 仅分割一次
+    if len(parts) == 2:
+        chinese_part = parts[0].strip()
+        english_part = parts[1].strip()
+    else:
+        chinese_part = bot_response.strip()
+        english_part = ""  # 处理没有英文的情况
+    stream_insert(f"{mate_name}:\n    {chinese_part}\n")
+    get_tts_play_live2d(english_part)
+
 
 
 def sensevoice_th():  # 语音识别(普通模式)
@@ -97,13 +107,19 @@ def sensevoice_th_break():  # 语音识别(实时语音打断模式)
             time.sleep(0.1)
 
 
-def switch_voice(event=None):  # 切换语音识别
-    if voice_option_menu.get() == "实时语音识别":
+def switch_asr(event=None):  # 切换语音识别
+    if voice_switch == "实时语音识别":
+
         voice_var.set("关闭语音识别")
     elif voice_option_menu.get() == "关闭语音识别":
         voice_var.set("实时语音识别")
 
 
+if not os.path.exists('data/momoka'):
+    os.makedirs('data/momoka', exist_ok=True)
+    for label in ["LABEL_0", "LABEL_1", "LABEL_2", "LABEL_3"]:
+        dir_path = os.path.join('data/momoka', label)
+        os.makedirs(dir_path, exist_ok=True)
 Thread(target=run_live2d).start()
 Thread(target=run_mmd).start()
 if chat_web_switch == "开启":
@@ -116,7 +132,7 @@ Thread(target=refresh_preference).start()
 input_box.bind('<Return>', text_chat)
 kb.add_hotkey('alt+g', pg.quit)
 try:
-    kb.add_hotkey(f'alt+{voice_key}', switch_voice)
+    kb.add_hotkey(f'alt+{voice_key}', switch_asr)
 except:
     pass
 wydh_icon = Image.open("data/image/ui/wydh.png")

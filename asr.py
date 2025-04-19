@@ -24,16 +24,16 @@ p = pyaudio.PyAudio()
 stream, model = None, None
 cache_path = "data/cache/cache_record.wav"
 
-
-def rms(data):  # 计算rms值
+# 计算rms值
+def rms(data):
     return np.sqrt(np.mean(np.frombuffer(data, dtype=np.int16) ** 2))
 
-
-def dbfs(rms_value):  # 计算dbfs值
+# 计算dbfs值
+def dbfs(rms_value):
     return 20 * np.log10(rms_value / (2 ** 15))
 
-
-def record_audio():  # 录音
+# 录音
+def record_audio(): 
     global stream
     frames = []
     recording = True
@@ -55,7 +55,7 @@ def record_audio():  # 录音
     return b''.join(frames)
 
 
-def recognize_audio(audiodata):  # 识别
+def recognize_audio(audiodata): 
     global model
     if model is None:
         model = SenseVoiceSmall("data/model/sensevoice-small-onnx-quant", batch_size=10, quantize=True)
@@ -64,7 +64,7 @@ def recognize_audio(audiodata):  # 识别
         wf.setsampwidth(p.get_sample_size(FORMAT))
         wf.setframerate(RATE)
         wf.writeframes(audiodata)
-    res = model(cache_path, language="auto", use_itn=False)
+    res = model(cache_path, language="zh", use_itn=False)
     info = res[0].split('<|')[1:]
     emotion = info[1].split('|>')[0]
     event = info[2].split('|>')[0]

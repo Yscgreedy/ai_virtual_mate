@@ -125,7 +125,7 @@ def open_setting_w():  # 设置界面
         Thread(target=ollama_test_th).start()
 
     setting_w = tk.Toplevel(root)
-    setting_w.title("软件设置 - 枫云AI虚拟伙伴Web版")
+    setting_w.title("软件设置 - 枫云AI虚拟伙伴-@Chaser")
     original_window_size2 = (1020, 635)
     scaled_window_size2 = scaled_size(original_window_size2)
     setting_w.geometry(f"{scaled_window_size2[0]}x{scaled_window_size2[1]}")
@@ -298,7 +298,7 @@ def open_setting_w():  # 设置界面
            command=lambda: Popen("notepad data/set/more_set.json"), bg="green", fg="white").place(
         relx=0.81, rely=0.4)
     Button(setting_w, text=" 开源项目地址 ",
-           command=lambda: wb.open("https://github.com/swordswind/ai_virtual_mate_web"), bg="#3E92ED",
+           command=lambda: wb.open("https://github.com/Yscgreedy/ai_virtual_mate"), bg="#3E92ED",
            fg="white").place(
         relx=0.81, rely=0.5)
     Button(setting_w, text=" 官网检查更新 ",
@@ -312,7 +312,7 @@ def open_setting_w():  # 设置界面
     cancel_btn.place(relx=0.81, rely=0.912)
     save_btn = Button(setting_w, text="保存", command=save_and_close, bg="#2A6EE9", fg="white")
     save_btn.place(relx=0.91, rely=0.912)
-    Label(setting_w, text="*本软件由MewCo-AI Team荣誉出品,开源免费,仅供个人娱乐,严禁用于商业用途", font=("楷体", 10),
+    Label(setting_w, text="*本软件由MewCo-AI Team荣誉出品,由@Chaser二次开发，开源免费,仅供个人娱乐,严禁用于商业用途", font=("楷体", 10),
           fg="green").place(relx=0.0, rely=0.961)
     setting_w.bind("<Button-3>", show_menu_set)
     setting_w.mainloop()

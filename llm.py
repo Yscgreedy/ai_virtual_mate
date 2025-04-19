@@ -5,7 +5,7 @@ try:
     from letta import create_client, LLMConfig, EmbeddingConfig
     from letta.schemas.memory import ChatMemory
 except:
-    pass
+    notice("letta组件未成功导入，请勿使用相关功能")
 with open('data/db/memory.db', 'r', encoding='utf-8') as memory_file:
     try:
         openai_history = json.load(memory_file)
@@ -18,27 +18,8 @@ sf_url = "https://api.siliconflow.cn/v1"
 def chat_preprocess(msg):  # 预处理
     try:
         content = "图像识别已关闭"
-        if ("屏幕" in msg or "画面" in msg or "图像" in msg or "看到" in msg or "看见" in msg or "照片" in msg or "摄像头" in msg or "图片" in msg) and img_menu.get() != "关闭图像识别":
-            if "图片" in msg:
-                if os.path.exists("data/cache/cache.png"):
-                    if img_menu.get() == "GLM-4V-Flash":
-                        content = glm_4v_photo(msg)
-                    elif img_menu.get() == "本地Ollama VLM":
-                        content = ollama_vlm_photo(msg)
-                    elif img_menu.get() == "本地QwenVL整合包":
-                        content = qwen_vlm_photo(msg)
-                    elif img_menu.get() == "本地GLM-V整合包":
-                        content = glm_v_photo(msg)
-                    elif img_menu.get() == "本地Janus整合包":
-                        content = janus_photo(msg)
-                    elif img_menu.get() == "自定义API-VLM":
-                        content = custom_vlm_photo(msg)
-                    notice(f"{mate_name}识别了上传的图片")
-                    os.remove("data/cache/cache.png")
-                else:
-                    content = "请先点击右下方按钮上传图片"
-                    notice("请先点击右下方按钮上传图片")
-            elif "屏幕" in msg or "画面" in msg or "图像" in msg:
+        if any(kw in msg for kw in ("屏幕", "画面", "图片", "看到", "看见", "照片", "摄像头")) and img_menu.get() != "关闭图像识别":
+            if "屏幕" in msg or "画面" in msg or "图片" in msg:
                 if img_menu.get() == "GLM-4V-Flash":
                     content = glm_4v_screen(msg)
                 elif img_menu.get() == "本地Ollama VLM":
@@ -77,11 +58,11 @@ def chat_preprocess(msg):  # 预处理
         return f"发生错误，错误详情：{e}"
 
 
-def chat_llm(tishici, msg):  # 大语言模型聊天
+def chat_llm(prompt, msg):  # 大语言模型聊天
     try:
         if llm_menu.get() == "讯飞星火Lite":
             spark_client = OpenAI(base_url="https://spark-api-open.xf-yun.com/v1", api_key=spark_key)
-            spark_history.append({"role": "user", "content": f"{tishici}。我的问题是：{msg}"})
+            spark_history.append({"role": "user", "content": f"{prompt}。我的问题是：{msg}"})
             messages = []
             messages.extend(spark_history)
             completion = spark_client.chat.completions.create(model="general", messages=messages)
@@ -139,7 +120,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
             openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
             return completion.choices[0].message.content
         elif llm_menu.get() == "本地Qwen整合包":
-            api = f"http://{local_server_ip}:8088/llm/?p={tishici}&q={msg}"
+            api = f"http://{local_server_ip}:8088/llm/?p={prompt}&q={msg}"
             try:
                 res = rq.get(api).json()["answer"]
                 return res
@@ -162,6 +143,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
                     rq.get(f'http://{local_server_ip}:{ollama_port}')
                 except:
                     Popen(f"ollama pull {ollama_model_name}", shell=False)
+
                 ollama_client = Client(host=f'http://{local_server_ip}:{ollama_port}')
                 openai_history.append({"role": "user", "content": msg})
                 messages = [{"role": "system", "content": tishici}]
@@ -183,7 +165,7 @@ def chat_llm(tishici, msg):  # 大语言模型聊天
             except Exception as e:
                 return f"本地RWKV Runner软件API服务未开启，错误详情：{e}"
         elif llm_menu.get() == "本地OpenVINO":
-            api = f"http://{local_server_ip}:8087/openvino/?p={tishici}&q={msg}"
+            api = f"http://{local_server_ip}:8087/openvino/?p={prompt}&q={msg}"
             try:
                 res = rq.get(api).json()["answer"]
                 return res

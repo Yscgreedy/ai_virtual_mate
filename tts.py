@@ -6,7 +6,6 @@ import asyncio
 import edge_tts
 import librosa
 import pyttsx3
-import pygame as pg
 import numpy as np
 from function import *
 import math
@@ -66,6 +65,7 @@ def get_tts_play_live2d(text,language='ja'):
         except Exception as e:
             notice(f"{error_message}，错误详情：{str(e)}")
 
+    text = text.split("</think>")[-1].strip()
     try:
         if tts_menu.get() == "云端edge-tts":
             asyncio.run(ms_edge_tts())
@@ -114,6 +114,7 @@ def get_tts_play_live2d(text,language='ja'):
         notice(f"文件未找到：{str(e)}")
     except Exception as e:
         notice(f"错误：{str(e)}")
+
 
     def play_live2d():  # 读取缓存音频播放Live2D对口型动作
         try:

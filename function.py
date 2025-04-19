@@ -1,5 +1,6 @@
 # 功能函数模块
 import time
+import pygame as pg
 from datetime import datetime
 from gui import *
 
@@ -31,8 +32,20 @@ def stream_insert(text):  # 流式输出
     Thread(target=threaded_insert).start()
 
 
-def open_ch(e):  # 打开角色
+def open_ch_2d(e):  # 打开2D角色
     wb.open(f"http://{server_ip}:{live2d_port}")
+
+
+def open_ch_3d(e):  # 打开3D角色
+    wb.open(f"http://{server_ip}:{mmd_port}")
+
+
+def open_vmd_music():  # 打开3D动作音乐
+    wb.open(f"http://127.0.0.1:{mmd_port}/vmd")
+    if vmd_music_switch == "on":
+        pg.init()
+        vmd_music = pg.mixer.Sound(f'data/music/{vmd_music_name}')
+        vmd_music.play()
 
 
 def export_chat():  # 导出对话
@@ -44,6 +57,15 @@ def export_chat():  # 导出对话
         with open(file_path, 'w', encoding='utf-8') as chat_file:
             chat_file.write(chat_records)
             notice(f"{mate_name}对话记录导出成功")
+
+
+def up_photo():
+    file_path = fd.askopenfilename(title="选择一张PNG图片提问AI", filetypes=[("PNG文件", "*.png")])
+    if file_path:
+        target_path = "data/cache/cache.png"
+        shutil.copy(file_path, target_path)
+        notice(f"图片上传成功，请发送包含“图片”二字的消息提问AI")
+        messagebox.showinfo("提示", "图片上传成功\n请发送包含“图片”二字的消息提问AI")
 
 
 def open_chatweb():  # 打开对话网页

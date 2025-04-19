@@ -17,91 +17,77 @@ def open_setting_w():  # 设置界面
         menu.post(event.x_root, event.y_root)
 
     def save_and_close():  # 保存并关闭设置界面
-        with open('data/db/config.db', 'w', encoding='utf-8') as file:
-            file.write(f'[虚拟伙伴名称]\n{mate_name_entry.get()}\n\n')
-            ch_prompt = prompt_text.get("1.0", "end").replace("\n", "")
-            file.write(f'[虚拟伙伴人设]\n{ch_prompt}\n\n')
-            file.write(f'[用户名]\n{username_entry.get()}\n\n')
-            file.write(f'[Web密码]\n{password_entry.get()}\n\n')
-            file.write(f'[百度TTS语速]\n{rate_menu.get()}\n\n')
-            file.write(f'[百度TTS音高]\n{lang_menu.get()}\n\n')
-            file.write(f'[对话网页端口]\n{chatweb_port_entry.get()}\n\n')
-            file.write(f'[角色网页端口]\n{live2d_port_entry.get()}\n\n')
-            file.write(f'[本地AI引擎服务器IP]\n{server_ip_entry.get()}\n\n')
-            file.write(f'[AnythingLLM工作区]\n{allm_ws_entry.get()}\n\n')
-            file.write(f'[LM Studio服务端口]\n{lmstudio_port_entry.get()}\n\n')
-            file.write(f'[AnythingLLM密钥]\n{allm_key_entry.get()}\n\n')
-            file.write(f'[Ollama大语言模型]\n{ollama_model_name_entry.get()}\n\n')
-            file.write(f'[GPT-SoVITS端口]\n{gsv_port_entry.get()}\n\n')
-            file.write(f'[自定义API-base_url]\n{custom_url_entry.get()}\n\n')
-            file.write(f'[自定义API-api_key]\n{custom_key_entry.get()}\n\n')
-            file.write(f'[自定义API-model]\n{custom_model_entry.get()}\n\n')
-            file.write(f'[实时语音开关键]\n{voice_key_entry.get()}\n\n')
-            file.write(f'[对话网页开关]\n{web_switch_menu.get()}\n\n')
-            file.write(f'[Ollama多模态VLM]\n{ollama_vlm_name_entry.get()}\n\n')
-            file.write(f'[自定义语音唤醒词]\n{wake_word_entry.get()}\n\n')
-            file.write(f'[实时语音打断]\n{voice_break_menu.get()}\n\n')
-            file.write(f'[语音识别灵敏度]\n{asr_sensi_menu.get()}\n\n')
-            file.write(f'[Dify知识库IP]\n{dify_ip_entry.get()}\n\n')
-            file.write(f'[Dify知识库密钥]\n{dify_key_entry.get()}\n\n')
-            file.write(f'[edge-tts音色]\n{edge_speaker_menu.get()}\n\n')
-            file.write(f'[edge-tts语速]\n{edge_rate_entry.get()}\n\n')
-            file.write(f'[edge-tts音高]\n{pitch_entry.get()}\n\n')
-            file.write(f'[自定义API-VLM]\n{custom_vlm_entry.get()}\n\n')
-            file.write(f'[CosyVoice端口]\n{cosy_port_entry.get()}\n\n')
-            file.write(f'[思维链think过滤]\n{think_filter_menu.get()}')
+        config = {
+            "虚拟伙伴名称": mate_name_entry.get(),
+            "虚拟伙伴人设": prompt_text.get("1.0", "end").replace("\n", ""),
+            "用户名": username_entry.get(), "Web密码": password_entry.get(), "百度TTS语速": rate_menu.get(),
+            "百度TTS语言": lang_menu.get(), "对话网页端口": chatweb_port_entry.get(),
+            "2D角色网页端口": live2d_port_entry.get(), "本地AI引擎服务器IP": server_ip_entry.get(),
+            "AnythingLLM工作区": allm_ws_entry.get(), "LM Studio端口": lmstudio_port_entry.get(),
+            "AnythingLLM密钥": allm_key_entry.get(), "Ollama大语言模型": ollama_model_name_entry.get(),
+            "GPT-SoVITS端口": gsv_port_entry.get(), "自定义API-base_url": custom_url_entry.get(),
+            "自定义API-api_key": custom_key_entry.get(), "自定义API-model": custom_model_entry.get(),
+            "实时语音开关键": voice_key_entry.get(), "对话网页开关": web_switch_menu.get(),
+            "Ollama多模态VLM": ollama_vlm_name_entry.get(), "自定义语音唤醒词": wake_word_entry.get(),
+            "实时语音打断": voice_break_menu.get(), "语音识别灵敏度": asr_sensi_menu.get(),
+            "Dify聊天助手IP": dify_ip_entry.get(), "Dify聊天助手密钥": dify_key_entry.get(),
+            "edge-tts音色": edge_speaker_menu.get(), "edge-tts语速": edge_rate_entry.get(),
+            "edge-tts音高": pitch_entry.get(), "自定义API-VLM": custom_vlm_entry.get(),
+            "CosyVoice端口": cosy_port_entry.get(), "思维链think过滤": think_filter_menu.get(),
+            "3D角色网页端口": mmd_port_entry.get()}
+        with open('data/db/config.json', 'w', encoding='utf-8') as file:
+            json.dump(config, file, ensure_ascii=False, indent=4)
         messagebox.showinfo("保存成功", "保存成功！重启软件生效")
         setting_w.destroy()
 
     def restore_set():  # 恢复默认设置
-        if messagebox.askokcancel("恢复默认设置", "您确定要重置枫云AI虚拟伙伴吗？"):
-            with open('data/db/config.db', 'w', encoding='utf-8') as file:
-                file.write('[虚拟伙伴名称]\n小月\n\n')
-                file.write(
-                    '[虚拟伙伴人设]\n请你扮演小月，与开拓者对话。小月是一个活泼可爱的的少女，乐观好奇，随身携带相机记录冒险。在对话中，你将作为小月，隐藏自己是程序的事实，使用角色语气交流，全程称对方为开拓者。注意保持角色一致，不能提及任何关于自己是语言模型或人工智能的话题。你的回答尽量不要超过30个字\n\n')
-                file.write('[用户名]\n开拓者\n\n')
-                file.write('[Web密码]\n12345678\n\n')
-                file.write('[百度TTS语速]\n5\n\n')
-                file.write('[百度TTS语言]\n中文\n\n')
-                file.write('[对话网页端口]\n5260\n\n')
-                file.write('[角色网页端口]\n5261\n\n')
-                file.write('[本地AI引擎服务器IP]\n127.0.0.1\n\n')
-                file.write('[AnythingLLM工作区]\naivm\n\n')
-                file.write('[LM Studio端口]\n1234\n\n')
-                file.write('[AnythingLLM密钥]\n在AnythingLLM获取\n\n')
-                file.write('[Ollama大语言模型]\nqwen2.5:0.5b\n\n')
-                file.write('[GPT-SoVITS端口]\n9880\n\n')
-                file.write('[自定义API-base_url]\n填入服务提供方地址，例如 https://api.siliconflow.cn/v1\n\n')
-                file.write('[自定义API-api_key]\n填入从服务提供方控制台获取的密钥，例如 sk-xxxxxxxxxx\n\n')
-                file.write('[自定义API-model]\n填入服务提供方支持的LLM名称，例如 Qwen/Qwen2.5-7B-Instruct\n\n')
-                file.write('[实时语音开关键]\nx\n\n')
-                file.write('[对话网页开关]\n开启\n\n')
-                file.write('[Ollama多模态VLM]\nminicpm-v:8b\n\n')
-                file.write('[自定义语音唤醒词]\n你好\n\n')
-                file.write('[实时语音打断]\n关闭\n\n')
-                file.write('[语音识别灵敏度]\n高\n\n')
-                file.write('[Dify知识库IP]\n127.0.0.1\n\n')
-                file.write('[Dify知识库密钥]\napp-xxxxxxxxxx\n\n')
-                file.write('[edge-tts音色]\n晓艺-年轻女声\n\n')
-                file.write('[edge-tts语速]\n+0\n\n')
-                file.write('[edge-tts音高]\n+10\n\n')
-                file.write('[自定义API-VLM]\n填入服务提供方支持的VLM名称，例如 Pro/Qwen/Qwen2-VL-7B-Instruct\n\n')
-                file.write('[CosyVoice端口]\n9881\n\n')
-                file.write('[思维链think过滤]\n开启')
+        if messagebox.askokcancel("恢复默认设置", "您确定要重置枫云AI虚拟伙伴Web版吗？"):
+            default_config = {
+                "虚拟伙伴名称": "小月",
+                "虚拟伙伴人设": "请你扮演小月，与开拓者对话。小月是一个活泼可爱的的少女，乐观好奇，随身携带相机记录冒险。在对话中，你将作为小月，隐藏自己是程序的事实，使用角色语气交流，全程称对方为开拓者。注意保持角色一致，不能提及任何关于自己是语言模型或人工智能的话题。你的回答不要包含emoji，尽量不要超过50个字",
+                "用户名": "开拓者", "Web密码": "12345678", "百度TTS语速": "5", "百度TTS语言": "中文", "对话网页端口": "5260",
+                "2D角色网页端口": "5261", "本地AI引擎服务器IP": "127.0.0.1", "AnythingLLM工作区": "aivm",
+                "LM Studio端口": "1234", "AnythingLLM密钥": "在AnythingLLM获取", "Ollama大语言模型": "qwen2.5:0.5b",
+                "GPT-SoVITS端口": "9880", "自定义API-base_url": "填入服务提供方地址，例如 https://api.siliconflow.cn/v1",
+                "自定义API-api_key": "填入从服务提供方控制台获取的密钥，例如 sk-xxxxxxxxxx",
+                "自定义API-model": "填入服务提供方支持的LLM名称，例如 Qwen/Qwen2.5-7B-Instruct",
+                "实时语音开关键": "x", "对话网页开关": "开启", "Ollama多模态VLM": "gemma3:4b",
+                "自定义语音唤醒词": "你好",
+                "实时语音打断": "关闭", "语音识别灵敏度": "高", "Dify聊天助手IP": "127.0.0.1",
+                "Dify聊天助手密钥": "app-xxxxxxxxxx", "edge-tts音色": "晓艺-年轻女声", "edge-tts语速": "+0",
+                "edge-tts音高": "+10", "自定义API-VLM": "填入服务提供方支持的VLM名称，例如 Pro/Qwen/Qwen2.5-VL-7B-Instruct",
+                "CosyVoice端口": "9881", "思维链think过滤": "开启", "3D角色网页端口": "5262"}
+            with open('data/db/config.json', 'w', encoding='utf-8') as file:
+                json.dump(default_config, file, ensure_ascii=False, indent=4)
             with open('dist/assets/live2d_core/live2d_js_set.txt', 'w', encoding='utf-8') as file8:
                 file8.write('[模型路径]\nhiyori_free_t08/hiyori_free_t08.model3.json\n\n')
-                file8.write(f'[模型横坐标]\n625\n\n')
+                file8.write('[模型横坐标]\n625\n\n')
                 file8.write('[模型纵坐标]\n-25\n\n')
                 file8.write('[模型大小]\n15')
+            with open('dist/assets/mmd_core/mmd_js_set.txt', 'w', encoding='utf-8') as file8:
+                file8.write('[模型路径]\n小月(仅作示例,无法显示)/小月.pmx\n\n')
+                file8.write('[动作路径]\nexample.vmd\n\n')
+                file8.write('[模型嘴索引]\n30\n\n')
+                file8.write('[模型眼索引]\n6')
             with open('dist/assets/live2d.js', 'w', encoding='utf-8') as file9:
                 file9.write(
                     live2d_js_part1 + "hiyori_free_t08/hiyori_free_t08.model3.json" + live2d_js_part2 + "625" + live2d_js_part3 + "-25" + live2d_js_part4 + "15" + live2d_js_part5)
-            with open('data/set/cam_num_set.txt', 'w', encoding="utf-8") as file15:
-                file15.write("0")
+            with open('dist/assets/mmd.js', 'w', encoding='utf-8') as file26:
+                file26.write(
+                    mmd_js_part1 + "小月(仅作示例,无法显示)/小月.pmx" + mmd_js_part2 + "30" + mmd_js_part3 + "6" + mmd_js_part4)
+            with open('dist/assets/mmd_vmd.js', 'w', encoding='utf-8') as file18:
+                file18.write(
+                    mmd_vmd_js_part1 + "小月(仅作示例,无法显示)/小月.pmx" + mmd_vmd_js_part2 + "example.vmd" + mmd_vmd_js_part3)
+            more_set = {"摄像头编号": "0", "麦克风编号": "0", "Ollama端口": "11434",
+                        "MMD 3D动作音乐开关(可选项:on/off)": "on",
+                        "MMD 3D动作音乐名称(位于data/music文件夹)": "测试音乐.mp3", "GPT-SoVITS语言": "zh"}
+            with open('data/set/more_set.json', 'w', encoding='utf-8') as file15:
+                json.dump(more_set, file15, ensure_ascii=False, indent=4)
             with open('data/set/key_set.txt', 'w', encoding='utf-8') as file16:
                 file16.write('[SiliconCloud硅基流动平台key(免费获取网址:siliconflow.cn)]\nsk-xxxxxxxxxx\n\n')
-                file16.write(f'[BigModel智谱开放平台key(免费获取网址:bigmodel.cn)]\nxxxxx.xxxxx\n\n')
-                file16.write('[Spark讯飞开放平台key(免费获取网址:xinghuo.xfyun.cn)]\nxxxxx:xxxxx')
+                file16.write('[BigModel智谱开放平台key(免费获取网址:bigmodel.cn)]\nxxxxx.xxxxx\n\n')
+                file16.write('[Spark讯飞开放平台key(免费获取网址:xinghuo.xfyun.cn)]\nxxxxx:xxxxx\n\n')
+                file16.write('[腾讯云混元大模型平台key(免费获取网址:console.cloud.tencent.com/hunyuan)]\nsk-xxxxxxxxxx')
             messagebox.showinfo("恢复默认设置成功", "恢复默认设置成功！重启软件生效")
             setting_w.destroy()
 
@@ -121,12 +107,12 @@ def open_setting_w():  # 设置界面
         def ollama_test_th():
             try:
                 try:
-                    rq.get(f'http://{local_server_ip}:11434')
+                    rq.get(f'http://{local_server_ip}:{ollama_port}')
                 except:
                     Popen("ollama ps", shell=False)
             except:
                 pass
-            url = f'http://{local_server_ip}:11434/api/tags'
+            url = f'http://{local_server_ip}:{ollama_port}/api/tags'
             try:
                 response = rq.get(url)
                 models = response.json().get('models', [])
@@ -229,25 +215,29 @@ def open_setting_w():  # 设置界面
     think_filter_menu = ttk.Combobox(setting_w, textvariable=think_filter_var, values=think_filter_options, width=4,
                                      state="readonly", justify='center', font=("楷体", 14))
     think_filter_menu.place(relx=0.452, rely=0.15)
-    Label(setting_w, text='对话网页密码:').place(relx=0.426, rely=0.245)
+    Label(setting_w, text='对话网页密码:').place(relx=0.426, rely=0.225)
     password_entry = Entry(setting_w, width=16, justify='center')
     password_entry.insert("end", password)
-    password_entry.place(relx=0.407, rely=0.295)
-    Label(setting_w, text="对话网页开关:").place(relx=0.426, rely=0.38)
+    password_entry.place(relx=0.407, rely=0.275)
+    Label(setting_w, text="对话网页开关:").place(relx=0.426, rely=0.34)
     web_switch_options = ["开启", "关闭"]
     web_switch_var = StringVar(setting_w)
     web_switch_var.set(chat_web_switch)
     web_switch_menu = ttk.Combobox(setting_w, textvariable=web_switch_var, values=web_switch_options, width=4,
                                    state="readonly", justify='center', font=("楷体", 14))
-    web_switch_menu.place(relx=0.452, rely=0.43)
-    Label(setting_w, text="对话网页端口:").place(relx=0.426, rely=0.515)
+    web_switch_menu.place(relx=0.452, rely=0.39)
+    Label(setting_w, text="对话网页端口:").place(relx=0.426, rely=0.455)
     chatweb_port_entry = Entry(setting_w, width=5, justify='center')
     chatweb_port_entry.insert("end", chatweb_port)
-    chatweb_port_entry.place(relx=0.457, rely=0.565)
-    Label(setting_w, text="角色网页端口:").place(relx=0.426, rely=0.65)
+    chatweb_port_entry.place(relx=0.457, rely=0.505)
+    Label(setting_w, text="2D角色网页端口:").place(relx=0.416, rely=0.57)
     live2d_port_entry = Entry(setting_w, width=5, justify='center')
     live2d_port_entry.insert("end", live2d_port)
-    live2d_port_entry.place(relx=0.457, rely=0.7)
+    live2d_port_entry.place(relx=0.457, rely=0.62)
+    Label(setting_w, text="3D角色网页端口:").place(relx=0.416, rely=0.685)
+    mmd_port_entry = Entry(setting_w, width=5, justify='center')
+    mmd_port_entry.insert("end", mmd_port)
+    mmd_port_entry.place(relx=0.457, rely=0.735)
     Label(setting_w, text="本地AI引擎服务器IP:").place(relx=0.59, rely=0.098)
     server_ip_entry = Entry(setting_w, width=15, justify='center')
     server_ip_entry.insert("end", local_server_ip)
@@ -268,11 +258,11 @@ def open_setting_w():  # 设置界面
     allm_key_entry = Entry(setting_w, width=22, justify='center', font=("楷体", 10))
     allm_key_entry.insert("end", anything_llm_key)
     allm_key_entry.place(relx=0.6, rely=0.539)
-    Label(setting_w, text='Dify知识库IP:').place(relx=0.6, rely=0.58)
+    Label(setting_w, text='Dify聊天助手IP:').place(relx=0.6, rely=0.58)
     dify_ip_entry = Entry(setting_w, width=15, justify='center')
     dify_ip_entry.insert("end", dify_ip)
     dify_ip_entry.place(relx=0.6, rely=0.629)
-    Label(setting_w, text='Dify知识库密钥:').place(relx=0.6, rely=0.678)
+    Label(setting_w, text='Dify聊天助手密钥:').place(relx=0.6, rely=0.678)
     dify_key_entry = Entry(setting_w, width=22, justify='center', font=("楷体", 10))
     dify_key_entry.insert("end", dify_key)
     dify_key_entry.place(relx=0.6, rely=0.727)
@@ -300,12 +290,12 @@ def open_setting_w():  # 设置界面
         relx=0.5, rely=0.951)
     Button(setting_w, text="测试Ollama", command=ollama_test, bg="#3E92ED", fg="white", font=("楷体", 11)).place(
         relx=0.63, rely=0.92)
-    Label(setting_w, text="当前版本:\n开源Web版 v2.0").place(relx=0.81, rely=0.15)
+    Label(setting_w, text="当前版本:\n开源Web版 v3.0").place(relx=0.81, rely=0.15)
     Button(setting_w, text="云端AI Key设置",
            command=lambda: Popen("notepad data/set/key_set.txt"), bg="green", fg="white").place(
         relx=0.81, rely=0.3)
-    Button(setting_w, text="摄像头编号设置",
-           command=lambda: Popen("notepad data/set/cam_num_set.txt"), bg="green", fg="white").place(
+    Button(setting_w, text="   更多设置   ",
+           command=lambda: Popen("notepad data/set/more_set.json"), bg="green", fg="white").place(
         relx=0.81, rely=0.4)
     Button(setting_w, text=" 开源项目地址 ",
            command=lambda: wb.open("https://github.com/Yscgreedy/ai_virtual_mate"), bg="#3E92ED",

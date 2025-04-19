@@ -1,5 +1,4 @@
 # 大语言模型模块
-import json
 from vlm import *
 
 try:
@@ -7,8 +6,12 @@ try:
     from letta.schemas.memory import ChatMemory
 except:
     notice("letta组件未成功导入，请勿使用相关功能")
-
-lmstudio_history, ollama_history, rwkv_history, custom_history, spark_history, glm_history, lyww_history, ds_history, qwen_history, internlm_history = [], [], [], [], [], [], [], [], [], []
+with open('data/db/memory.db', 'r', encoding='utf-8') as memory_file:
+    try:
+        openai_history = json.load(memory_file)
+    except:
+        openai_history = []
+spark_history = []
 sf_url = "https://api.siliconflow.cn/v1"
 
 
@@ -46,13 +49,13 @@ def chat_preprocess(msg):  # 预处理
                 notice(f"{mate_name}拍了照片，调用[摄像头识别]")
         else:
             content = chat_llm(prompt, msg)
-            if think_filter_switch == "开启":
-                content = content.split("</think>")[-1].strip()
             notice(f"收到{mate_name}回复")
+        with open('data/db/memory.db', 'w', encoding='utf-8') as memory_file:
+            json.dump(openai_history, memory_file, ensure_ascii=False, indent=4)
         return content
     except Exception as e:
-        notice(f"图像识别引擎配置错误，错误详情：{e}")
-        return "图像识别引擎配置错误"
+        notice(f"发生错误，错误详情：{e}")
+        return f"发生错误，错误详情：{e}"
 
 
 def chat_llm(prompt, msg):  # 大语言模型聊天
@@ -67,56 +70,54 @@ def chat_llm(prompt, msg):  # 大语言模型聊天
             return completion.choices[0].message.content
         elif llm_menu.get() == "GLM-4-Flash":
             glm_client = OpenAI(base_url=glm_url, api_key=glm_key)
-            glm_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": prompt}]
-            messages.extend(glm_history)
-            completion = glm_client.chat.completions.create(model="glm-4-flash", messages=messages)
-            glm_history.append({"role": "assistant", "content": completion.choices[0].message.content})
+            openai_history.append({"role": "user", "content": msg})
+            messages = [{"role": "system", "content": tishici}]
+            messages.extend(openai_history)
+            completion = glm_client.chat.completions.create(model="glm-4-flash-250414", messages=messages)
+            openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
+            return completion.choices[0].message.content
+        elif llm_menu.get() == "GLM-Z1-Flash":
+            glm_client = OpenAI(base_url=glm_url, api_key=glm_key)
+            openai_history.append({"role": "user", "content": msg})
+            messages = [{"role": "system", "content": tishici}]
+            messages.extend(openai_history)
+            completion = glm_client.chat.completions.create(model="glm-z1-flash", messages=messages)
+            openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
             return completion.choices[0].message.content
         elif llm_menu.get() == "DeepSeek-R1-7B":
             ds_client = OpenAI(base_url=sf_url, api_key=sf_key)
-            ds_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": prompt}]
-            messages.extend(ds_history)
+            openai_history.append({"role": "user", "content": msg})
+            messages = [{"role": "system", "content": tishici}]
+            messages.extend(openai_history)
             completion = ds_client.chat.completions.create(model="deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
                                                            messages=messages)
-            ds_history.append({"role": "assistant", "content": completion.choices[0].message.content})
-            return completion.choices[0].message.content
-        elif llm_menu.get() == "思维链Marco-o1":
-            marco_client = OpenAI(base_url=sf_url, api_key=sf_key)
-            messages = [{"role": "system",
-                         "content": f"{prompt}。当你回答问题时，你的思考应该在<think>内完成，<answer>内输出你的结果。<think>应该尽可能是中文"},
-                        {"role": "user", "content": msg}]
-            completion = marco_client.chat.completions.create(model="AIDC-AI/Marco-o1", messages=messages)
-            result = completion.choices[0].message.content
-            result = result.replace("<answer>", "").replace("</answer>", "")
-            return result
-        elif llm_menu.get() == "零一万物1.5-9B":
-            lyww_client = OpenAI(base_url=sf_url, api_key=sf_key)
-            lyww_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": prompt}]
-            messages.extend(lyww_history)
-            completion = lyww_client.chat.completions.create(model="01-ai/Yi-1.5-9B-Chat-16K",
-                                                             messages=messages)
-            lyww_history.append({"role": "assistant", "content": completion.choices[0].message.content})
+            openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
             return completion.choices[0].message.content
         elif llm_menu.get() == "通义千问2.5-7B":
             qwen_client = OpenAI(base_url=sf_url, api_key=sf_key)
-            qwen_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": prompt}]
-            messages.extend(qwen_history)
+            openai_history.append({"role": "user", "content": msg})
+            messages = [{"role": "system", "content": tishici}]
+            messages.extend(openai_history)
             completion = qwen_client.chat.completions.create(model="Qwen/Qwen2.5-7B-Instruct",
                                                              messages=messages)
-            qwen_history.append({"role": "assistant", "content": completion.choices[0].message.content})
+            openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
             return completion.choices[0].message.content
         elif llm_menu.get() == "InternLM2.5-7B":
             internlm_client = OpenAI(base_url=sf_url, api_key=sf_key)
-            internlm_history.append({"role": "user", "content": msg})
-            messages = [{"role": "system", "content": prompt}]
-            messages.extend(internlm_history)
+            openai_history.append({"role": "user", "content": msg})
+            messages = [{"role": "system", "content": tishici}]
+            messages.extend(openai_history)
             completion = internlm_client.chat.completions.create(model="internlm/internlm2_5-7b-chat",
                                                                  messages=messages)
-            internlm_history.append({"role": "assistant", "content": completion.choices[0].message.content})
+            openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
+            return completion.choices[0].message.content
+        elif llm_menu.get() == "腾讯混元Lite":
+            hunyuan_client = OpenAI(base_url="https://api.hunyuan.cloud.tencent.com/v1", api_key=hy_key)
+            openai_history.append({"role": "user", "content": msg})
+            messages = [{"role": "system", "content": tishici}]
+            messages.extend(openai_history)
+            completion = hunyuan_client.chat.completions.create(model="hunyuan-lite", messages=messages)
+            openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
             return completion.choices[0].message.content
         elif llm_menu.get() == "本地Qwen整合包":
             api = f"http://{local_server_ip}:8088/llm/?p={prompt}&q={msg}"
@@ -128,40 +129,41 @@ def chat_llm(prompt, msg):  # 大语言模型聊天
         elif llm_menu.get() == "本地LM Studio":
             try:
                 lmstudio_client = OpenAI(base_url=f"http://{local_server_ip}:{lmstudio_port}/v1", api_key="lm-studio")
-                lmstudio_history.append({"role": "user", "content": msg})
-                messages = [{"role": "system", "content": prompt}]
-                messages.extend(lmstudio_history)
+                openai_history.append({"role": "user", "content": msg})
+                messages = [{"role": "system", "content": tishici}]
+                messages.extend(openai_history)
                 completion = lmstudio_client.chat.completions.create(model="", messages=messages)
-                lmstudio_history.append({"role": "assistant", "content": completion.choices[0].message.content})
+                openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
                 return completion.choices[0].message.content
             except Exception as e:
-                return f"本地LM Studio软件未开启，错误详情：{e}"
-        elif llm_menu.get() == "本地Ollama":
+                return f"本地LM Studio软件API服务未开启，错误详情：{e}"
+        elif llm_menu.get() == "本地Ollama LLM":
             try:
                 try:
-                    rq.get(f'http://{local_server_ip}:11434')
+                    rq.get(f'http://{local_server_ip}:{ollama_port}')
                 except:
                     Popen(f"ollama pull {ollama_model_name}", shell=False)
-                ollama_client = Client(host=f'http://{local_server_ip}:11434')
-                ollama_history.append({"role": "user", "content": msg})
-                messages = [{"role": "system", "content": prompt}]
-                messages.extend(ollama_history)
+
+                ollama_client = Client(host=f'http://{local_server_ip}:{ollama_port}')
+                openai_history.append({"role": "user", "content": msg})
+                messages = [{"role": "system", "content": tishici}]
+                messages.extend(openai_history)
                 response = ollama_client.chat(model=ollama_model_name, messages=messages)
-                ollama_history.append({"role": "assistant", "content": response['message']['content']})
+                openai_history.append({"role": "assistant", "content": response['message']['content']})
                 return response['message']['content']
             except Exception as e:
-                return f"本地Ollama服务未开启，错误详情：{e}"
+                return f"本地Ollama LLM配置错误，错误详情：{e}"
         elif llm_menu.get() == "本地RWKV运行器":
             try:
                 rwkv_client = OpenAI(base_url=f"http://{local_server_ip}:8000/v1", api_key="rwkv")
-                rwkv_history.append({"role": "user", "content": msg})
-                messages = [{"role": "system", "content": prompt}]
-                messages.extend(rwkv_history)
+                openai_history.append({"role": "user", "content": msg})
+                messages = [{"role": "system", "content": tishici}]
+                messages.extend(openai_history)
                 completion = rwkv_client.chat.completions.create(model="rwkv", messages=messages)
-                rwkv_history.append({"role": "assistant", "content": completion.choices[0].message.content})
+                openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
                 return completion.choices[0].message.content
             except Exception as e:
-                return f"本地RWKV Runner软件未开启，错误详情：{e}"
+                return f"本地RWKV Runner软件API服务未开启，错误详情：{e}"
         elif llm_menu.get() == "本地OpenVINO":
             api = f"http://{local_server_ip}:8087/openvino/?p={prompt}&q={msg}"
             try:
@@ -169,12 +171,12 @@ def chat_llm(prompt, msg):  # 大语言模型聊天
                 return res
             except Exception as e:
                 return f"本地OpenVINO整合包API服务器未开启，错误详情：{str(e)[0:100]}"
-        elif llm_menu.get() == "本地Dify知识库":
+        elif llm_menu.get() == "Dify聊天助手":
             try:
                 res = chat_dify(msg)
                 return res
             except Exception as e:
-                return f"本地Dify知识库配置错误，错误详情：{e}"
+                return f"本地Dify聊天助手配置错误，错误详情：{e}"
         elif llm_menu.get() == "AnythingLLM":
             try:
                 res = chat_anything_llm(msg)
@@ -187,11 +189,11 @@ def chat_llm(prompt, msg):  # 大语言模型聊天
         else:
             try:
                 custom_client = OpenAI(base_url=custom_url, api_key=custom_key)
-                custom_history.append({"role": "user", "content": msg})
-                messages = [{"role": "system", "content": prompt}]
-                messages.extend(custom_history)
+                openai_history.append({"role": "user", "content": msg})
+                messages = [{"role": "system", "content": tishici}]
+                messages.extend(openai_history)
                 completion = custom_client.chat.completions.create(model=custom_model, messages=messages)
-                custom_history.append({"role": "assistant", "content": completion.choices[0].message.content})
+                openai_history.append({"role": "assistant", "content": completion.choices[0].message.content})
                 return completion.choices[0].message.content
             except Exception as e:
                 return f"自定义API配置错误，错误详情：{e}"
@@ -200,7 +202,7 @@ def chat_llm(prompt, msg):  # 大语言模型聊天
         return f"{llm_menu.get()}不可用，请前往软件设置正确配置云端AI Key，错误详情：{e}"
 
 
-def chat_dify(msg):  # Dify知识库
+def chat_dify(msg):  # Dify聊天助手
     headers = {"Authorization": f"Bearer {dify_key}", "Content-Type": "application/json"}
     data = {"query": msg, "inputs": {}, "response_mode": "blocking", "user": username, "conversation_id": None}
     res = rq.post(f"http://{dify_ip}/v1/chat-messages", headers=headers, data=json.dumps(data))
@@ -246,16 +248,18 @@ def chat_letta(msg):  # Letta长期记忆
 
 
 def clear_chat():  # 清除对话记录
-    global lmstudio_history, ollama_history, rwkv_history, custom_history, spark_history, glm_history, lyww_history, ds_history, qwen_history, internlm_history
+    global openai_history, spark_history
     if messagebox.askokcancel(f"清除{mate_name}的记忆和聊天记录",
                               f"您确定要清除{mate_name}的记忆和聊天记录吗？\n如有需要可先点击🔼导出记录再开启新对话"):
         output_box.delete("1.0", "end")
-        lmstudio_history, ollama_history, rwkv_history, custom_history, spark_history, glm_history, lyww_history, ds_history, qwen_history, internlm_history = [], [], [], [], [], [], [], [], [], []
+        openai_history, spark_history = [], []
         with open('data/db/letta.db', 'w', encoding="utf-8") as f:
             f.write("0")
+        with open('data/db/memory.db', 'w', encoding='utf-8') as f:
+            f.write("")
         notice("记忆和聊天记录已清空")
 
 
 def clean_chat_web():  # 清除对话记录
-    global lmstudio_history, ollama_history, rwkv_history, custom_history, spark_history, glm_history, lyww_history, ds_history, qwen_history, internlm_history
-    lmstudio_history, ollama_history, rwkv_history, custom_history, spark_history, glm_history, lyww_history, ds_history, qwen_history, internlm_history = [], [], [], [], [], [], [], [], [], []
+    global openai_history, spark_history
+    openai_history, spark_history = [], []

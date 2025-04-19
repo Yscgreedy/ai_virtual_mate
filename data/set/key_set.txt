@@ -6,3 +6,6 @@ xxxxx.xxxxx
 
 [Spark讯飞开放平台key(免费获取网址:xinghuo.xfyun.cn)]
 xxxxx:xxxxx
+
+[腾讯云混元大模型平台key(免费获取网址:console.cloud.tencent.com/hunyuan)]
+sk-xxxxxxxxxx
